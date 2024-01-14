@@ -13,10 +13,10 @@ A Gatherer is composed of 4 functions
 - a finisher (state, downstream), push transformed elements to the next stage (if necessary)
 
 A Gatherer is created by answering 3 questions
-- Is the operation paralellizable() or sequential() ?
+- Is the operation paralellizable or sequential ?
   if paralelizable, use Gatherer.of() + a combiner? or Gatherer.ofSequential() to create the Gatherer.
 - Is the operation stateful or stateless ?
-  if stateful, call of/ofSequential() with 2 or 3 parameters (initializer, integrator, finisher?).
+  if stateful, call of()/ofSequential() with 2 or 3 parameters (initializer, integrator, finisher?).
 - Is the operation greedy or short-circuit ?
 - if greedy, use Integrator.ofGreedy(integrator) or just the integrator.
 
