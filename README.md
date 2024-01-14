@@ -4,9 +4,26 @@ Demo of the new Stream Gatherer API of Java 22
 A simple way to discover and understand the Stream Gatherer API is to re-implement some of the already existing stream
 intermediary operations like (map, filter, takeWhile, etc.) using the new Gatherer API.
 
+A Gatherer is composed of 4 functions
+- an initializer () -> A, initializes a state (if there is one)
+- an integrator (state, element, downstream) -> boolean,
+  updates the state and/or push transformed elements to the next stage and
+  back-propagate the stop boolean
+- a combiner (state, state) -> state, merge two states (if the computation is done in parallel)
+- a finisher (state, downstream), push transformed elements to the next stage (if necessary)
+
+A Gatherer is created by answering 3 questions
+- Is the operation paralellizable() or sequential() ?
+  if paralelizable, use Gatherer.of() + a combiner? or Gatherer.ofSequential() to create the Gatherer.
+- Is the operation stateful or stateless ?
+  if stateful, call of/ofSequential() with 2 or 3 parameters (initializer, integrator, finisher?).
+- Is the operation greedy or short-circuit ?
+- if greedy, use Integrator.ofGreedy(integrator) or just the integrator.
+
 ### map
 
-Let's try to implement stream.map(), which transform any elements to another elements.
+Let's try to implement `stream.map(mapper)`, which transform any elements to another elements,
+`stream.map()` is paralellizable, stateless and greedy.
 
 ```java
 void main() {
@@ -36,7 +53,7 @@ that takes a `Gatherer` as parameter (here the result of the method `map()`).
       .toList();
 ```
 
-A Gatherer is parameterized by 3 tye arguments, the type of the element (here `String`),
+A Gatherer is parameterized by 3 type arguments, the type of the element (here `String`),
 the type of the internal state (let use '?' for now) and the type of the transformed elements
 (here `Integer`).
 
@@ -70,7 +87,8 @@ Gatherer<String, ?, Integer> map() {
 
 ### filter
 
-Let's now try to implement `filter` which keep the element that have the predicate function that returns true
+Let's now try to implement `stream.filter(predicate)` which keep the element that have the predicate function that returns true,
+`stream.filter()` is parallelizable, stateless and greedy.
 
 ```java
   var result = text.lines()
@@ -98,7 +116,8 @@ Gatherer<String, ?, String> filter() {
 
 ### takeWhile
 
-
+For `stream.takeWhile(predicate)`, the elements are kept while the predicate is true,
+`stream.takeWhile()` is sequential, stateless and short-circuit.
 
 ```java
   var result = text.lines()
@@ -106,6 +125,10 @@ Gatherer<String, ?, String> filter() {
       .gather(takeWhile())
       .toList();   // [item1, item2]
 ```
+
+The gatherer is created by `Gatherer.ofSequential(integrator)`. Inside the `integrator`,
+if the predicate is true for the current element, the element is pushed to the next stage,
+otherwise, the operation short-circuit by returning `false`.
 
 ```java
 Gatherer<String, ?, String> takeWhile() {
@@ -120,12 +143,18 @@ Gatherer<String, ?, String> takeWhile() {
 
 ### limit
 
+For `stream.limit(int)`, we need to count the number of elements seen, so we need a state for that,
+`stream.limit()` is sequential, stateful and short-circuit.
+
 ```java
   var result = text.lines()
       //.limit(3)
       .gather(limit())
       .toList();
 ```
+
+The Gatherer is created with `ofSequential(initializer, integrator)`. The initializer create the state,
+the integrator modify the state counter until the limit and return `false`.
 
 ```java
 Gatherer<String, ?, String> limit() {
@@ -143,12 +172,25 @@ Gatherer<String, ?, String> limit() {
 
 ### windowFixed
 
+The gatherer API also comes with few gatherers defined in the class `Gatherers`.
+For example, if we want to group all the elements by 2 (in a List), there is already
+`Gatheres.windowFixed(2)` for that. `Gatheres.windowFixed()` is sequential, stateful and greedy.
+
+
 ```java
   var result = text.lines()
       //.gather(Gatherers.windowFixed(2))
       .gather(windowFixed())
       .toList();
 ```
+
+Let's re-implement `windowFixed`. The gatherer is created with `Gatherer.ofSequential()` and takes
+an initializer to initialize the state, a greedy integrator and also a finisher. The finisher is needed here
+because if the number of elements is not a multiple of 2, we need to emit a List with one element at the end.
+The state is a list that will contain the element until its size is 2. At that point, the list is pushed to
+the downstream stage and the state uses a new list. If the downstream stage stop the computation,
+we need to back-propage `false`. In the finisher, if the state list as element in it, the list is pushed to
+the downstream stage.
 
 ```java
 Gatherer<String, ?, List<String>> windowFixed() {
@@ -165,8 +207,9 @@ Gatherer<String, ?, List<String>> windowFixed() {
         return true;
       }),
       (state, downstream) -> {
-        downstream.push(state.list);
-        state.list = null;  // maybe ?
+        if (!list.isEmpty()) {
+          downstream.push(state.list);
+        }
       }
   );
 }
@@ -175,12 +218,22 @@ Gatherer<String, ?, List<String>> windowFixed() {
 
 ### fold vs reduce
 
+`Gatherers.fold()` is another builtin gatherer. It accumulates the value from left to right and
+unlike `stream.reduce()` it does not require the operation to be associate.
+`stream.reduce()` is parallelizable, so it may split the computation in several parts
+(to run on different cores) thus requires the operation to be associative to merge the result of the different parts.
+`fold()` is sequential, stateful and greedy. 
+
 ```java
   var result = text.lines()
       //.gather(Gatherers.fold(() -> 0, (value, s) -> value + 1))
       .gather(fold())
       .findFirst().orElseThrow();
 ```
+
+Let's rewrite `fold`. The gatherer is created using `ofSequential` with an initializer, a greedy integrator and
+a finisher. The integrator does not push the value to the downstream stage and only accumulate the values.
+At the end, the finisher push the result (here the `state.counter`).
 
 ```java
 Gatherer<String, ?, Integer> fold() {
@@ -197,12 +250,10 @@ Gatherer<String, ?, Integer> fold() {
 }
 ```
 
-```java
-  var result = text.lines()
-      .parallel()
-      .gather(reduce())
-      .findFirst().orElseThrow();
-```
+Instead of `fold`, we may want to re-implement `reduce`, which is paralellizable, stateful and greedy.
+The gatherer is created with `Gatherer.of()` with an initializer, a greedy integrator, a combiner and
+a finisher. Because the combiner need to re-create a State from two existing state, the state has to be named
+(it is created more than once), that's the prupose of the local class `State`.
 
 ```java
 Gatherer<String, ?, Integer> reduce() {
@@ -224,7 +275,18 @@ Gatherer<String, ?, Integer> reduce() {
 }
 ```
 
+We can test that `reduce` works correctly by asking for a parallel stream.
+
+```java
+    var result = text.lines()
+      .parallel()
+      .gather(reduce())
+      .findFirst().orElseThrow();
+```
+
 ### Collector as Gatherer
+
+We have seeing with `reduce()` that a `Collector` can be written as a `Gatherer`.
 
 ```java
   var list = List.of(1, 2, 3, 4, 5);
@@ -233,6 +295,11 @@ Gatherer<String, ?, Integer> reduce() {
       .findFirst().orElseThrow();
   System.out.println(result);
 ```
+
+A collector is a gatherer which is parallelizable, stateful and greedy.
+So such gatherer should be created with `Gatherer.of()` with an initializer, a greedy integrator,
+a combiner and a finisher. Like with `fold` or `reduce`, the finisher will send the result
+to the downstream stage.
 
 ```java
 <E, A, T> Gatherer<E, A, T> asGatherer(Collector<? super E, A, ? extends T> collector) {
@@ -249,3 +316,5 @@ Gatherer<String, ?, Integer> reduce() {
       (state, downstream) -> downstream.push(finisher.apply(state)));
 }
 ```
+
+Okay, that's all for today. I hope you enjoy it as well as me.
