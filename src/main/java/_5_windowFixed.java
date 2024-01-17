@@ -17,7 +17,9 @@ Gatherer<String, ?, List<String>> windowFixed() {
         return true;
       }),
       (state, downstream) -> {
-        downstream.push(state.list);
+        if (!state.list.isEmpty()) {
+          downstream.push(state.list);
+        }
         state.list = null;  // maybe ?
       }
   );

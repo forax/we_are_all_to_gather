@@ -48,7 +48,7 @@ that takes a `Gatherer` as parameter (here the result of the method `map()`).
 
 ```java
   var result = text.lines()
-      //.map(String::toUpperCase)
+      //.map(String::length)
       .gather(map())
       .toList();
 ```
@@ -74,7 +74,7 @@ Gatherer<String, ?, Integer> map() {
 ```
 
 Here, map() is not an operation that can short-circuit the pipeline (decide to stop the computation of the pipeline),
-so we can improve a bit the performance by declaring the Integrator _greedy_ (which means non "short circuit")
+so we can improve a bit the performance by declaring the Integrator _greedy_ (which means no "short circuit")
 using the method `Integrator.ofGreedy()`.
 
 ```java
@@ -101,7 +101,7 @@ Let's now try to implement `stream.filter(predicate)` which keep the element tha
 Again here, we create a Gatherer with `Gatherer.of()` with a greedy integrator. Inside the integrator,
 if the predicate is true for the element, the element is pushed to the downstream stage and the fact that
 the computation is stopped or not is back-propagated (with `return`).
-If the predicate is false, we do not push the element and returns true to ask for more element.
+If the predicate is false, we do not push the element to the downstream stage and returns true to ask for more elements.
 
 ```java
 Gatherer<String, ?, String> filter() {
