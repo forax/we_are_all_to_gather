@@ -1,4 +1,6 @@
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Gatherer;
@@ -11,9 +13,9 @@ enum Characteristic {
   SEQUENTIAL, STATELESS, GREEDY
 }
 
-List<Characteristic> characteristics(Gatherer<?,?, ?> gatherer) {
+Set<Characteristic> characteristics(Gatherer<?,?, ?> gatherer) {
   return Stream.of(gatherer)
-      .mapMulti((Gatherer<?,?,?> g, Consumer<Characteristic> consumer) -> {
+      .<Characteristic>mapMulti((g, consumer) -> {
         if (g.combiner() == Gatherer.defaultCombiner()) {
           consumer.accept(Characteristic.SEQUENTIAL);
         }
@@ -24,7 +26,7 @@ List<Characteristic> characteristics(Gatherer<?,?, ?> gatherer) {
           consumer.accept(Characteristic.GREEDY);
         }
       })
-      .toList();
+      .collect(Collectors.toCollection(() -> EnumSet.noneOf(Characteristic.class)));
 }
 
 void main() {
