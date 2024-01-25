@@ -2,6 +2,7 @@ package com.gihtub.forax.wearealltogather.bench;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Gatherer;
 import java.util.stream.IntStream;
@@ -46,6 +47,19 @@ public class MapGathererBenchmark {
 		}));
 	}
 
+	static <T, R> Gatherer<T, ?, R> mapSubclass(Function<? super T, ? extends R> mapper) {
+		class MapperGatherer implements Gatherer<T, Void, R>, Gatherer.Integrator.Greedy<Void, T, R>, BinaryOperator<Void> {
+			@Override public Greedy<Void, T, R> integrator() { return this; }
+			@Override public BinaryOperator<Void> combiner() { return this; }
+
+			@Override public Void apply(Void left, Void right) { return left; }
+			@Override public boolean integrate(Void state, T element, Gatherer.Downstream<? super R> downstream) {
+				return downstream.push(mapper.apply(element));
+			}
+		}
+		return new MapperGatherer();
+	}
+
 	@Benchmark
 	public int stream_map_sum() {
 		return values.stream().map(String::length).reduce(0, Integer::sum);
@@ -58,6 +72,11 @@ public class MapGathererBenchmark {
 	public int gatherer_map_sum() {
 		return values.stream().gather(map(String::length)).reduce(0, Integer::sum);
 	}
+	@Benchmark
+	public int gatherer_mapsublcass_sum() {
+		return values.stream().gather(mapSubclass(String::length)).reduce(0, Integer::sum);
+	}
+
 
 	@Benchmark
 	public long stream_map_count() {
