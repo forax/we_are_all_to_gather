@@ -60,6 +60,7 @@ public class MapGathererBenchmark {
 		return new MapperGatherer();
 	}
 
+	/*
 	@Benchmark
 	public int stream_map_sum() {
 		return values.stream().map(String::length).reduce(0, Integer::sum);
@@ -75,9 +76,26 @@ public class MapGathererBenchmark {
 	@Benchmark
 	public int gatherer_mapsublcass_sum() {
 		return values.stream().gather(mapSubclass(String::length)).reduce(0, Integer::sum);
+	}*/
+
+	@Benchmark
+	public boolean stream_map_allMatch() {
+		return values.stream().map(String::length).allMatch(v -> v < 10);
+	}
+	@Benchmark
+	public boolean stream_mapToInt_allMatch() {
+		return values.stream().mapToInt(String::length).allMatch(v -> v < 10);
+	}
+	@Benchmark
+	public boolean gatherer_map_allMatch() {
+		return values.stream().gather(map(String::length)).allMatch(v -> v < 10);
+	}
+	@Benchmark
+	public boolean gatherer_mapsublcass_allMatch() {
+		return values.stream().gather(mapSubclass(String::length)).allMatch( v -> v < 10);
 	}
 
-
+	/*
 	@Benchmark
 	public long stream_map_count() {
 		return values.stream().map(String::length).count();
@@ -99,4 +117,5 @@ public class MapGathererBenchmark {
 	public List<Integer> gatherer_map_toList() {
 		return values.stream().gather(map(String::length)).toList();
 	}
+	*/
 }
