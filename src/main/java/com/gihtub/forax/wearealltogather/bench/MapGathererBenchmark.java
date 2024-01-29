@@ -17,21 +17,10 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
-// Benchmark                                   Mode  Cnt    Score    Error  Units
 
-// MapGathererBenchmark.stream_map_sum         avgt    5  481.222 ±  1.560  us/op
-// MapGathererBenchmark.stream_mapToInt_sum    avgt    5  102.089 ±  0.672  us/op
-// MapGathererBenchmark.gatherer_map_sum       avgt    5  552.384 ±  3.405  us/op
 
-// MapGathererBenchmark.stream_map_count       avgt    5    0.009 ±  0.001  us/op
-// MapGathererBenchmark.stream_mapToInt_count  avgt    5    0.009 ±  0.001  us/op
-// MapGathererBenchmark.gatherer_map_count     avgt    5  101.993 ±  0.105  us/op
-
-// MapGathererBenchmark.stream_map_toList      avgt    5  332.322 ±  0.512  us/op
-// MapGathererBenchmark.gatherer_map_toList    avgt    5  558.873 ±  6.200  us/op
-
-@Warmup(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 5, time = 1, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 10, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 2, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = { "--enable-preview" })
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
