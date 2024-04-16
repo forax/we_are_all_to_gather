@@ -1,12 +1,12 @@
 import java.util.stream.Gatherer;
 
-Gatherer<String, ?, String> filter() {
-  return Gatherer.of(Gatherer.Integrator.ofGreedy((_, element, downstream) -> {
-    if (element.endsWith("1")) {
+Gatherer<String, ?, String> takeWhile() {
+  return Gatherer.of((_, element, downstream) -> {
+    if (element.startsWith("item")) {
       return downstream.push(element);
     }
-    return true;
-  }));
+    return false;
+  });
 }
 
 void main() {
@@ -19,8 +19,8 @@ void main() {
       """;
 
   var result = text.lines()
-      //.filter(s -> s.endsWith("1"))
-      .gather(filter())
+      //.takeWhile(s -> s.startsWith("item"))
+      .gather(takeWhile())
       .toList();
 
   System.out.println(result);

@@ -1,4 +1,3 @@
-import java.util.function.Function;
 import java.util.stream.Gatherer;
 
 Gatherer<String, ?, Integer> map() {

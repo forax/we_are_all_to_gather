@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Gatherer;
-import java.util.stream.Gatherers;
 
 Gatherer<String, ?, Integer> fold() {
   return Gatherer.ofSequential(

@@ -1,14 +1,21 @@
 import java.util.stream.Gatherer;
 
 Gatherer<String, ?, String> limit() {
-  return Gatherer.ofSequential(
-      () -> new Object() { int counter; },
-      (state, element, downstream) -> {
-        if (state.counter++ == 3) {
+  class Counter {
+    int counter;
+    Counter(int counter) { this.counter = counter; }
+  }
+  return Gatherer.of(
+      () -> new Counter(0),
+      (counter, element, downstream) -> {
+        if (++counter.counter == 2) {
           return false;
         }
         return downstream.push(element);
-      }
+      },
+      (c1, c2) -> new Counter(c1.counter + c2.counter),
+      (_, _) -> {}
+
   );
 }
 

@@ -1,11 +1,11 @@
 import java.util.stream.Gatherer;
 
-Gatherer<String, ?, String> takeWhile() {
-  return Gatherer.ofSequential((_, element, downstream) -> {
-    if (element.startsWith("item")) {
+Gatherer<String, ?, String> filter() {
+  return Gatherer.of((_, element, downstream) -> {
+    if (element.endsWith("1")) {
       return downstream.push(element);
     }
-    return false;
+    return true;
   });
 }
 
@@ -19,8 +19,8 @@ void main() {
       """;
 
   var result = text.lines()
-      //.takeWhile(s -> s.startsWith("item"))
-      .gather(takeWhile())
+      //.filter(s -> s.endsWith("1"))
+      .gather(filter())
       .toList();
 
   System.out.println(result);
