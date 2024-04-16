@@ -8,7 +8,7 @@ Gatherer<String, ?, String> limit() {
   return Gatherer.of(
       () -> new Counter(0),
       (counter, element, downstream) -> {
-        if (++counter.counter == 2) {
+        if (counter.counter++ == 3) {
           return false;
         }
         return downstream.push(element);
