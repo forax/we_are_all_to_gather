@@ -39,7 +39,6 @@ MapGathererBenchmark.gatherer_mapsequential_toList  avgt    5  537.352 ±  1.305
 /*
 Benchmark                                                      Mode  Cnt     Score    Error  Units
 MapGathererBenchmark.stream_collect                            avgt    5   225.062 ±  4.335  us/op
-
 MapGathererBenchmark.stream_map_collect                        avgt    5   311.241 ± 62.204  us/op
 MapGathererBenchmark.gatherer_map_collect                      avgt    5   307.455 ±  0.222  us/op
 MapGathererBenchmark.gatherer_mapsequential_collect            avgt    5   307.612 ±  0.091  us/op
