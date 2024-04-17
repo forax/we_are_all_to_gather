@@ -5,17 +5,14 @@ Gatherer<String, ?, String> limit() {
     int counter;
     Counter(int counter) { this.counter = counter; }
   }
-  return Gatherer.of(
+  return Gatherer.ofSequential(
       () -> new Counter(0),
       (counter, element, downstream) -> {
         if (counter.counter++ == 3) {
           return false;
         }
         return downstream.push(element);
-      },
-      (c1, c2) -> new Counter(c1.counter + c2.counter),
-      (_, _) -> {}
-
+      }
   );
 }
 
