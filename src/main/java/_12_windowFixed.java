@@ -1,7 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, List<String>> windowFixed() {
   return Gatherer.ofSequential(
       () -> new Object() { List<String> list = new ArrayList<>(); },

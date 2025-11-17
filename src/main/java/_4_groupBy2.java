@@ -1,8 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Gatherer;
-import java.util.stream.Gatherers;
-
 Gatherer<String, ?, List<String>> groupBy2() {
   class State {
     ArrayList<String> list = new ArrayList<>();

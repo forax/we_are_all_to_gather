@@ -1,5 +1,3 @@
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, Integer> fold() {
   return Gatherer.ofSequential(
       () -> new Object() { int counter; },

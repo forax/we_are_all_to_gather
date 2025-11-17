@@ -1,15 +1,8 @@
-import java.lang.foreign.Arena;
-import java.util.Objects;
-import java.util.function.Predicate;
-import java.util.stream.Gatherer;
-
-import static java.util.stream.Gatherer.Integrator.ofGreedy;
-
 <T> Gatherer<T, ?, Integer> findIndex(Predicate<? super T> predicate) {
   Objects.requireNonNull(predicate);
   return Gatherer.ofSequential(
       () -> new Object() { int index; },
-      ofGreedy((state, element, downstream) -> {
+      Gatherer.Integrator.ofGreedy((state, element, downstream) -> {
         var index = state.index++;
         if (predicate.test(element)) {
           return downstream.push(index);

@@ -1,5 +1,3 @@
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, Integer> map() {
   return Gatherer.of(Gatherer.Integrator.ofGreedy((_, element, downstream) -> {
     return downstream.push(element.length());

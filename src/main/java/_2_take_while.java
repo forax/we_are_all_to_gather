@@ -1,5 +1,3 @@
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, String> takeWhile() {
   return Gatherer.of((_, element, downstream) -> {
     if (element.startsWith("item")) {

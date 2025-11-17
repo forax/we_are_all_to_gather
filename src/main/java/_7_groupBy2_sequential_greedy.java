@@ -1,16 +1,10 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Gatherer;
-import java.util.stream.Gatherer.Integrator;
-import java.util.stream.Gatherers;
-
 Gatherer<String, ?, List<String>> groupBy2() {
   class State {
     ArrayList<String> list = new ArrayList<>();
   }
   return Gatherer.ofSequential(   // inherently sequential
       State::new,
-      Integrator.ofGreedy((state, element, downstream) -> {
+      Gatherer.Integrator.ofGreedy((state, element, downstream) -> {
         var list = state.list;
         list.add(element);
         if (state.list.size() == 2) {

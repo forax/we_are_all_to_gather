@@ -1,5 +1,3 @@
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, Integer> reduce() {
   class Counter {
     int counter;

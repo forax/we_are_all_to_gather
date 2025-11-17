@@ -1,5 +1,3 @@
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, String> limit() {
   class Counter {
     int counter;

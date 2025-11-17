@@ -1,9 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.stream.Gatherer;
-
 record Section(String name, List<String> items) {}
 
 Gatherer<String, ?, Section> windowBy(Predicate<? super String> predicate,

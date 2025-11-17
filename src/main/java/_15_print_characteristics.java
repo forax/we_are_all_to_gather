@@ -1,14 +1,3 @@
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Gatherer;
-import java.util.stream.Gatherers;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.joining;
-
 enum Characteristic {
   SEQUENTIAL, STATELESS, GREEDY
 }

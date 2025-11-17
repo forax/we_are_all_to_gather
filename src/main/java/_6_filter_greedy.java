@@ -1,5 +1,3 @@
-import java.util.stream.Gatherer;
-
 Gatherer<String, ?, String> filter() {
   return Gatherer.of(Gatherer.Integrator.ofGreedy((_, element, downstream) -> {  // ofGreedy: optimization
     if (element.endsWith("1")) {

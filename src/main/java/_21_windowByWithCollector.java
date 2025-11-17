@@ -1,11 +1,3 @@
-import java.util.List;
-import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Gatherer;
-
 record Section(String name, List<String> items) {}
 
 <T, R, R2> Gatherer<T, ?, R2> windowBy(Predicate<? super T> predicate,

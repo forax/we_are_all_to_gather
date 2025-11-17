@@ -1,9 +1,3 @@
-import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Gatherer;
-import java.util.stream.Gatherers;
-
 <E, A, T> Gatherer<E, A, T> asGatherer(Collector<? super E, A, ? extends T> collector) {
   var supplier = collector.supplier();
   var accumulator = collector.accumulator();
